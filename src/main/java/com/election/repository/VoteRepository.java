@@ -11,4 +11,6 @@ public interface VoteRepository {
     List<VoteTypeCount> countVotesByType();
 
     List<CandidateVoteCount> countValidVotesByCandidate();
+
+    VoteSummary computeVoteSummary();
 }
