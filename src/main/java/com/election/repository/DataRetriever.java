@@ -59,6 +59,8 @@ public class DataRetriever implements VoteRepository {
       }
     }
 
+
+
     private VoteTypeCount mapResultSetToVoteTypeCount(ResultSet rs) throws SQLException {
         VoteTypeCount vote = new VoteTypeCount();
         vote.setVoteType(VoteType.valueOf(rs.getString("vote_type")));

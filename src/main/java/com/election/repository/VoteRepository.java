@@ -8,4 +8,6 @@ public interface VoteRepository {
     long countAllVotes();
 
     List<VoteTypeCount> countVotesByType();
+
+    List<CandidateVoteCount> countValidVotesByCandidate();
 }
