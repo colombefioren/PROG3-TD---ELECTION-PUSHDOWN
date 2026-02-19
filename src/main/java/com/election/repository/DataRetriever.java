@@ -13,7 +13,7 @@ public class DataRetriever implements VoteRepository {
 
     @Override
     public long countAllVotes() {
-        String sql = "select count(id) from vote";
+        String sql = "select count(id) as total_vote from vote";
 
         Connection conn = null;
         Statement ps = null;
