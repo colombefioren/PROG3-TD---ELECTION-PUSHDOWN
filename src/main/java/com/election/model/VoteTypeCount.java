@@ -11,6 +11,10 @@ public class VoteTypeCount {
         this.count = count;
     }
 
+    public VoteTypeCount() {
+
+    }
+
     public VoteType getVoteType() {
         return voteType;
     }
