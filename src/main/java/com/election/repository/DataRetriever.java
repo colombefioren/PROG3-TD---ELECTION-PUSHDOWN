@@ -2,6 +2,7 @@ package com.election.repository;
 
 import com.election.db.DBConnection;
 import com.election.model.CandidateVoteCount;
+import com.election.model.VoteSummary;
 import com.election.model.VoteType;
 import com.election.model.VoteTypeCount;
 
@@ -88,6 +89,33 @@ group by c.name
         }
     }
 
+    @Override
+    public VoteSummary computeVoteSummary() {
+        String sql =
+                """
+select count(case when vo.vote_type = 'VALID' then 1 end) as valid_vote,
+        count(case when vo.vote_type = 'BLANK' then 1 end) as blank_count,
+        count(case when vo.vote_type = 'NULL' then 1 end) as null_count
+ from vote vo
+""";
+
+        Connection conn = null;
+        Statement ps = null;
+        ResultSet rs = null;
+
+        try{
+            conn = dbConnection.getDBConnection();
+            ps = conn.createStatement();
+            rs = ps.executeQuery(sql);
+            if(!rs.next()){
+                throw new IllegalArgumentException("No votes found");
+            }
+            return mapResultSetToVoteSummary(rs);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private VoteTypeCount mapResultSetToVoteTypeCount(ResultSet rs) throws SQLException {
         VoteTypeCount vote = new VoteTypeCount();
@@ -101,6 +129,14 @@ group by c.name
         candidateVoteCount.setCandidateName(rs.getString("candidate_name"));
         candidateVoteCount.setValidVoteCount(rs.getInt("valid_vote"));
         return candidateVoteCount;
+    }
+
+    private VoteSummary mapResultSetToVoteSummary(ResultSet rs) throws SQLException {
+        VoteSummary voteSummary = new VoteSummary();
+        voteSummary.setValideCount(rs.getInt("valid_vote"));
+        voteSummary.setBlankCount(rs.getInt("blank_count"));
+        voteSummary.setNullCount(rs.getInt("null_count"));
+        return voteSummary;
     }
 
 
