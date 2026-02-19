@@ -1,6 +1,7 @@
 package com.election.repository;
 
 import com.election.db.DBConnection;
+import com.election.model.CandidateVoteCount;
 import com.election.model.VoteType;
 import com.election.model.VoteTypeCount;
 
@@ -39,7 +40,7 @@ public class DataRetriever implements VoteRepository {
     @Override
     public List<VoteTypeCount> countVotesByType() {
       String sql = """
-    select vo.vote_type as vote_type, count(vo.id) as vote_count from vote vo group by vo.vote_type order by vote_count desc
+select vo.vote_type as vote_type, count(vo.id) as vote_count from vote vo group by vo.vote_type order by vote_count desc
 """;
       Connection conn = null;
       Statement ps = null;
@@ -56,9 +57,36 @@ public class DataRetriever implements VoteRepository {
           return votes;
       } catch (SQLException e) {
           throw new RuntimeException(e);
+      }finally{
+      dbConnection.attemptCloseDBConnection(rs, ps, conn);
       }
     }
 
+    @Override
+    public List<CandidateVoteCount> countValidVotesByCandidate() {
+        String sql = """
+select c.name as candidate_name, count(case when vo.vote_type = 'VALID' then 1 end) as valid_vote
+from candidate c
+join vote vo on c.id = vo.candidate_id
+group by c.name
+""";
+        Connection conn = null;
+        Statement ps = null;
+        ResultSet rs = null;
+
+        try{
+            conn = dbConnection.getDBConnection();
+            ps = conn.createStatement();
+            rs = ps.executeQuery(sql);
+            List<CandidateVoteCount> candidateVoteCounts = new ArrayList<CandidateVoteCount>();
+            while(rs.next()){
+                candidateVoteCounts.add(mapResultSetToCandidateVoteCount(rs));
+            }
+            return candidateVoteCounts;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     private VoteTypeCount mapResultSetToVoteTypeCount(ResultSet rs) throws SQLException {
@@ -66,6 +94,13 @@ public class DataRetriever implements VoteRepository {
         vote.setVoteType(VoteType.valueOf(rs.getString("vote_type")));
         vote.setCount(rs.getInt("vote_count"));
         return vote;
+    }
+
+    private CandidateVoteCount mapResultSetToCandidateVoteCount(ResultSet rs) throws SQLException {
+        CandidateVoteCount candidateVoteCount = new CandidateVoteCount();
+        candidateVoteCount.setCandidateName(rs.getString("candidate_name"));
+        candidateVoteCount.setValidVoteCount(rs.getInt("valid_vote"));
+        return candidateVoteCount;
     }
 
 

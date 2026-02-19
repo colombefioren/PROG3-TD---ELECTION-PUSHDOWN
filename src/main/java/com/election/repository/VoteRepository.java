@@ -1,5 +1,6 @@
 package com.election.repository;
 
+import com.election.model.CandidateVoteCount;
 import com.election.model.VoteTypeCount;
 
 import java.util.List;
