@@ -14,4 +14,6 @@ public interface VoteRepository {
     List<CandidateVoteCount> countValidVotesByCandidate();
 
     VoteSummary computeVoteSummary();
+
+    double computeTurnoutRate();
 }

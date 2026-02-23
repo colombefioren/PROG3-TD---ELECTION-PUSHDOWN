@@ -116,6 +116,13 @@ select count(case when vo.vote_type = 'VALID' then 1 end) as valid_vote,
         }
     }
 
+    @Override
+    public double computeTurnoutRate() {
+        String sql = """
+select (count(voter.id) / count(vote.id)) from voter join vote vot on voter.id = vot.voter_id
+""";
+    }
+
 
     private VoteTypeCount mapResultSetToVoteTypeCount(ResultSet rs) throws SQLException {
         VoteTypeCount vote = new VoteTypeCount();
