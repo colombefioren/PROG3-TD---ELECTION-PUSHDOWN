@@ -1,6 +1,7 @@
 package com.election.repository;
 
 import com.election.model.CandidateVoteCount;
+import com.election.model.ElectionResult;
 import com.election.model.VoteSummary;
 import com.election.model.VoteTypeCount;
 
@@ -17,5 +18,5 @@ public interface VoteRepository {
 
     double computeTurnoutRate();
 
-    E
+    ElectionResult FindWinner();
 }
