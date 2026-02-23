@@ -125,8 +125,28 @@ select count(case when vo.vote_type = 'VALID' then 1 end) as valid_vote,
     @Override
     public double computeTurnoutRate() {
         String sql = """
-select (count(voter.id) / count(vote.id)) from voter join vote vot on voter.id = vot.voter_id
+select (count(voter.id) / count(vote.id)) * 100 as participation_rate from voter join vote on voter.id = vote.voter_id
 """;
+        Connection conn = null;
+        Statement ps = null;
+
+        ResultSet rs = null;
+
+        try{
+            conn = dbConnection.getDBConnection();
+            ps = conn.createStatement();
+            rs = ps.executeQuery(sql);
+
+            if(!rs.next()){
+                throw new IllegalArgumentException("No votes found");
+            }
+
+            return rs.getDouble(1);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }finally {
+            dbConnection.attemptCloseDBConnection(rs, ps, conn);
+        }
     }
 
 
