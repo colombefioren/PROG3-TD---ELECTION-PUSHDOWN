@@ -16,4 +16,6 @@ public interface VoteRepository {
     VoteSummary computeVoteSummary();
 
     double computeTurnoutRate();
+
+    E
 }
