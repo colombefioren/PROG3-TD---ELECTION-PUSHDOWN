@@ -35,6 +35,8 @@ public class DataRetriever implements VoteRepository {
             return rs.getLong(1);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            dbConnection.attemptCloseDBConnection(rs, ps, conn);
         }
     }
 
@@ -51,7 +53,7 @@ select vo.vote_type as vote_type, count(vo.id) as vote_count from vote vo group 
           conn = dbConnection.getDBConnection();
           ps = conn.createStatement();
           rs = ps.executeQuery(sql);
-          List<VoteTypeCount> votes = new ArrayList<VoteTypeCount>();
+          List<VoteTypeCount> votes = new ArrayList<>();
           while(rs.next()){
               votes.add(mapResultSetToVoteTypeCount(rs));
           }
@@ -79,13 +81,15 @@ group by c.name
             conn = dbConnection.getDBConnection();
             ps = conn.createStatement();
             rs = ps.executeQuery(sql);
-            List<CandidateVoteCount> candidateVoteCounts = new ArrayList<CandidateVoteCount>();
+            List<CandidateVoteCount> candidateVoteCounts = new ArrayList<>();
             while(rs.next()){
                 candidateVoteCounts.add(mapResultSetToCandidateVoteCount(rs));
             }
             return candidateVoteCounts;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally{
+            dbConnection.attemptCloseDBConnection(rs, ps, conn);
         }
     }
 
@@ -113,6 +117,8 @@ select count(case when vo.vote_type = 'VALID' then 1 end) as valid_vote,
             return mapResultSetToVoteSummary(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            dbConnection.attemptCloseDBConnection(rs, ps, conn);
         }
     }
 
