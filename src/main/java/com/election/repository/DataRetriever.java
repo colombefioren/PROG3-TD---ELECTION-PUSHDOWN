@@ -126,7 +126,9 @@ public class DataRetriever implements VoteRepository {
     @Override
     public double computeTurnoutRate() {
         String sql = """
-                select (count(voter.id) / count(vote.id)) * 100 as participation_rate from voter join vote on voter.id = vote.voter_id
+                select (total_vote::numeric / total_voter::numeric) * 100 participation_rate from
+                (select (count(voter.id)) total_voter from voter) t,
+                (select count(vote.id) total_vote from vote) x
                 """;
         Connection conn = null;
         Statement ps = null;
@@ -153,7 +155,8 @@ public class DataRetriever implements VoteRepository {
     @Override
     public ElectionResult FindWinner() {
         String sql = """
-                select candidate_name, valid_vote_count from (select candidate.name as candidate_name,
+                select candidate_name, valid_vote_count from
+                (select candidate.name as candidate_name,
                 count(vote.id) filter ( where vote.vote_type = 'VALID') as valid_vote_count from candidate join vote
                 on vote.candidate_id = candidate.id group by candidate.name) t
                 where valid_vote_count = (select max(valid_vote_count) from
